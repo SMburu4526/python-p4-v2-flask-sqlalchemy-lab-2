@@ -1,34 +1,74 @@
-#!/usr/bin/env python3
+from app import app 
+from models import db, Customer, Item, Review
 
-from app import app
-from models import db, Customer, Review, Item
+def clear_database():
+    with app.app_context():
+        Review.query.delete()
+        Customer.query.delete()
+        Item.query.delete()
+        db.session.commit()
 
-with app.app_context():
+def seed_customers():
+    with app.app_context():
+        customers = [
+            Customer(name="Tal Yuri"),
+            Customer(name="Jordan Brown"),
+            Customer(name="Alex Chen"),
+            Customer(name="Maria Garcia"),
+            Customer(name="David Smith")
+        ]
+        db.session.add_all(customers)
+        db.session.commit()
+        return customers
 
-    Customer.query.delete()
-    Review.query.delete()
-    Item.query.delete()
+def seed_items():
+    with app.app_context():
+        items = [
+            Item(name="Laptop Backpack", price=49.99),
+            Item(name="Insulated Coffee Mug", price=9.99),
+            Item(name="Wireless Mouse", price=24.99),
+            Item(name="Bluetooth Headphones", price=79.99),
+            Item(name="Phone Charger", price=19.99),
+            Item(name="Desk Lamp", price=34.99),
+            Item(name="Notebook", price=12.99)
+        ]
+        db.session.add_all(items)
+        db.session.commit()
+        return items
 
-    customer1 = Customer(name='Tal Yuri')
-    customer2 = Customer(name='Raha Rosario')
-    customer3 = Customer(name='Luca Mahan')
-    db.session.add_all([customer1, customer2, customer3])
-    db.session.commit()
+def seed_reviews(customers, items):
+    with app.app_context():
+        reviews = [
+            Review(comment="Great backpack! Fits my laptop perfectly.", customer_id=customers[0].id, item_id=items[0].id),
+            Review(comment="Keeps coffee hot for hours. Love it!", customer_id=customers[0].id, item_id=items[1].id),
+            Review(comment="Very comfortable and good sound quality.", customer_id=customers[1].id, item_id=items[3].id),
+            Review(comment="The mouse stopped working after 2 weeks.", customer_id=customers[1].id, item_id=items[2].id),
+            Review(comment="Fast charging, good quality cable.", customer_id=customers[2].id, item_id=items[4].id),
+            Review(comment="Perfect brightness for my home office.", customer_id=customers[2].id, item_id=items[5].id),
+            Review(comment="High quality paper, worth the price.", customer_id=customers[3].id, item_id=items[6].id),
+            Review(comment="Best backpack I've ever owned!", customer_id=customers[3].id, item_id=items[0].id),
+            Review(comment="Good value for money.", customer_id=customers[4].id, item_id=items[1].id),
+            Review(comment="Excellent noise cancellation.", customer_id=customers[4].id, item_id=items[3].id)
+        ]
+        db.session.add_all(reviews)
+        db.session.commit()
+        return reviews
 
-    item1 = Item(name='Laptop Backpack', price=49.99)
-    item2 = Item(name='Insulated Coffee Mug', price=9.99)
-    item3 = Item(name='6 Foot HDMI Cable', price=12.99)
-    db.session.add_all([item1, item2, item3])
-    db.session.commit()
-
-    db.session.add(Review(comment="zipper broke the first week",
-                   customer=customer1, item=item1))
-    db.session.add(Review(comment="love this backpack!",
-                   customer=customer2, item=item1))
-    db.session.add(Review(comment="coffee stays hot for hours!",
-                   customer=customer1, item=item2))
-    db.session.add(Review(comment="best coffee mug ever!",
-                   customer=customer3, item=item2))
-    db.session.add(Review(comment="cable too short",
-                   customer=customer3, item=item3))
-    db.session.commit()
+if __name__ == '__main__':
+    with app.app_context():
+        
+        print("Clearing database...")
+        clear_database()
+        
+        
+        print("Seeding customers...")
+        customers = seed_customers()
+        
+        print("Seeding items...")
+        items = seed_items()
+        
+        print("Seeding reviews...")
+        reviews = seed_reviews(customers, items)
+        
+        print("Database seeded successfully!")
+        print(f"Created {len(customers)} customers, {len(items)} items, and {len(reviews)} reviews.")
